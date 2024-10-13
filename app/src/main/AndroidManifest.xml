@@ -6,7 +6,15 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+<!--    <uses-permission android:name="android.permission.CAPTURE_AUDIO_HOTWORD" />-->
+<!--    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" />-->
+<!--    <uses-permission android:name="android.permission.CAPTURE_MEDIA_OUTPUT" />-->
+<!--    <uses-permission android:name="android.permission.CAPTURE_TUNER_AUDIO_INPUT" />-->
+<!--    <uses-permission android:name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
