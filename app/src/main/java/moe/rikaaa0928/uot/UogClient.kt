@@ -17,6 +17,7 @@ import java.net.InetAddress
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.random.Random
 
 class UogClient(val lPort: Int, val endpoint: String, val password: String) {
     //    private var service: UdpServiceGrpcKt.UdpServiceCoroutineStub? = null
@@ -26,6 +27,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
     private var lastAddr = ""
     private var lastPort = 0
     private val bufferSize = 65535;
+    val random = Random(1)
 
     @OptIn(DelicateCoroutinesApi::class)
     fun start() {
@@ -36,6 +38,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
         GlobalScope.launch {
             while (!stop.get()) {
                 try {
+                    val id = random.nextInt(1000);
                     val url = URL(endpoint)
                     val builder = OkHttpChannelBuilder.forAddress(url.host, url.port)
                     if (!url.protocol.equals("https")) {
@@ -44,7 +47,12 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                     val channel = builder.build()
                     val service = UdpServiceGrpcKt.UdpServiceCoroutineStub(channel)
                     if (req != null) {
+                        Log.d("UogClient", "reconnect req")
                         req!!.close()
+                    }
+                    if (udpSocket != null) {
+                        Log.d("UogClient", "re-listen udp")
+                        udpSocket!!.close()
                     }
                     req = Channel<Udp.UdpReq>()
                     val res = service.startStream(req!!.consumeAsFlow());
@@ -65,7 +73,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                         } catch (ignore: Exception) {
 
                         } finally {
-                            Log.d("UogClient", "grpc read stop")
+                            Log.d("UogClient", "grpc read stop: " + id)
                         }
                     }
                     val buffer = ByteArray(bufferSize)
@@ -77,6 +85,8 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                                 lastAddr = packet.address.hostName;
                                 lastPort = packet.port
                             } else if (lastAddr != packet.address.hostName || lastPort != packet.port) {
+                                lastAddr = ""
+                                lastPort = 0
                                 break
                             }
                             val receivedData = packet.data.copyOfRange(0, packet.length)
@@ -91,7 +101,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                             }
                         }
                     }
-                    Log.d("UogClient", "grpc write stop")
+                    Log.d("UogClient", "grpc write stop: " + id)
                 } catch (e: Exception) {
                     Log.e("UogClient", "all", e)
                 }
