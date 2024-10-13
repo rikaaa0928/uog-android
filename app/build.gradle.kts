@@ -26,6 +26,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            applicationIdSuffix = ".rika"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
