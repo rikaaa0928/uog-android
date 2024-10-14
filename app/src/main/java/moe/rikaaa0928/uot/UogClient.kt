@@ -37,6 +37,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
         GlobalScope.launch {
             while (!stop.get()) {
                 try {
+                    val innerStop = AtomicBoolean(false)
                     val id = random.nextInt(1000);
                     val url = URL(endpoint)
                     val builder = AndroidChannelBuilder.forAddress(url.host, url.port)
@@ -72,7 +73,8 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                         } catch (ignore: Exception) {
 
                         } finally {
-                            Log.d("UogClient", "grpc read stop: " + id)
+                            Log.d("UogClient", "grpc read stop: $id")
+                            udpSocket!!.close()
                         }
                     }
                     val buffer = ByteArray(bufferSize)
@@ -96,11 +98,11 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                         } catch (e: Exception) {
                             if (e !is SocketTimeoutException) {
                                 Log.e("UpgClient", "grpc write", e)
-                                java.util.concurrent.TimeUnit.MILLISECONDS.sleep(100L)
+                                break
                             }
                         }
                     }
-                    Log.d("UogClient", "grpc write stop: " + id)
+                    Log.d("UogClient", "grpc write stop: $id")
                 } catch (e: Exception) {
                     Log.e("UogClient", "all", e)
                 }
