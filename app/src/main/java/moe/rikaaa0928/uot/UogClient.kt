@@ -22,6 +22,7 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import java.net.SocketTimeoutException
 import java.net.URL
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
@@ -32,7 +33,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) : Br
     var req: Channel<Udp.UdpReq>? = null
     var udpSocket: AtomicReference<DatagramSocket?> = AtomicReference(null);
     private val stop = AtomicBoolean(true)
-    private val noNet = AtomicBoolean(false)
+    private val waitNet: AtomicReference<CountDownLatch> = AtomicReference(null)
     private var lastAddr = ""
     private var lastPort = 0
     private val bufferSize = 65535;
@@ -120,7 +121,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) : Br
                                 Log.e("UpgClient", "grpc write", e)
                                 break
                             } else {
-                                if (noNet.get()) {
+                                if (waitNet.get() != null) {
                                     Log.d("UogClient", "udp receive break no net: $id")
                                     break
                                 }
@@ -140,8 +141,9 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) : Br
                 } catch (e: Exception) {
                     Log.e("UogClient", "all", e)
                 } finally {
-                    if (noNet.get()) {
-                        TimeUnit.SECONDS.sleep(3)
+                    val l = waitNet.get()
+                    if (l != null) {
+                        l.await()
                     } else {
                         TimeUnit.SECONDS.sleep(1)
                     }
@@ -185,9 +187,10 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) : Br
                     capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
             }
             if (!isWifiConnected && !isMobileDataConnected) {
-                noNet.set(true)
+                waitNet.compareAndSet(null, CountDownLatch(1))
             } else {
-                noNet.set(false)
+                val l = waitNet.getAndSet(null)
+                l?.countDown()
             }
         }
     }
