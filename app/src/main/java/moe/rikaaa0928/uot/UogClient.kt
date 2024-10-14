@@ -37,7 +37,6 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
         GlobalScope.launch {
             while (!stop.get()) {
                 try {
-                    val innerStop = AtomicBoolean(false)
                     val id = random.nextInt(1000);
                     val url = URL(endpoint)
                     val builder = AndroidChannelBuilder.forAddress(url.host, url.port)
