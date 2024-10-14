@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import com.google.android.gms.net.CronetProviderInstaller
 import com.google.protobuf.ByteString
 import dad.xiaomi.uog.Udp
 import dad.xiaomi.uog.UdpServiceGrpcKt
@@ -48,6 +49,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) : Br
                 try {
                     val id = random.nextInt(1000);
                     val url = URL(endpoint)
+                    CronetProviderInstaller.installProvider(ctx)
                     val engine =
                         ExperimentalCronetEngine.Builder(ctx /* Android Context */).build();
                     val builder = CronetChannelBuilder.forAddress(url.host, url.port, engine)
