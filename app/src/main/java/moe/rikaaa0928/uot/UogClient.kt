@@ -44,18 +44,18 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) : Br
             return
         }
         stop.set(false)
+        val url = URL(endpoint)
+        CronetProviderInstaller.installProvider(ctx)
+        val engine =
+            ExperimentalCronetEngine.Builder(ctx /* Android Context */).build();
+        val builder = CronetChannelBuilder.forAddress(url.host, url.port, engine)
+        if (!url.protocol.equals("https")) {
+            builder.usePlaintext()
+        }
         GlobalScope.launch {
             while (!stop.get()) {
                 try {
                     val id = random.nextInt(1000);
-                    val url = URL(endpoint)
-                    CronetProviderInstaller.installProvider(ctx)
-                    val engine =
-                        ExperimentalCronetEngine.Builder(ctx /* Android Context */).build();
-                    val builder = CronetChannelBuilder.forAddress(url.host, url.port, engine)
-                    if (!url.protocol.equals("https")) {
-                        builder.usePlaintext()
-                    }
                     val channel = builder.build()
                     val service = UdpServiceGrpcKt.UdpServiceCoroutineStub(channel)
                     if (req != null) {
