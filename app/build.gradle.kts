@@ -51,7 +51,7 @@ dependencies {
     implementation(libs.protobuf.kotlin.lite)
     implementation(libs.grpc.stub)
     implementation(libs.grpc.kotlin.stub)
-    implementation("io.grpc:grpc-cronet:1.57.2")
+    implementation("io.grpc:grpc-cronet:1.68.0")
     implementation("com.google.android.gms:play-services-cronet:18.1.0")
 //    implementation("org.chromium.net:cronet-fallback:119.6045.31")
     testImplementation(libs.junit)

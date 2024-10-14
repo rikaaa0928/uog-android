@@ -1,7 +1,7 @@
 [versions]
 agp = "8.7.0"
 grpcKotlinStub = "1.4.1"
-grpcOkhttp = "1.57.2"
+grpcOkhttp = "1.68.0"
 kotlin = "1.9.24"
 coreKtx = "1.13.1"
 junit = "4.13.2"

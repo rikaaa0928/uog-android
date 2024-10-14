@@ -6,6 +6,9 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import android.widget.Toast
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.net.CronetProviderInstaller
 import com.google.protobuf.ByteString
 import dad.xiaomi.uog.Udp
@@ -46,10 +49,52 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) : Br
         }
         stop.set(false)
         val url = URL(endpoint)
-        CronetProviderInstaller.installProvider(ctx)
+        val installTask = CronetProviderInstaller.installProvider(ctx)
+        installTask.addOnCompleteListener { task ->
+            if (task.isSuccessful()) {
+                // create a Cronet engine
+                Toast.makeText(
+                    ctx, "Cronet Available!!!",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@addOnCompleteListener
+            }
+            if (task.getException() != null) {
+                val cause = task.getException()
+                if (cause is GooglePlayServicesNotAvailableException) {
+                    Toast.makeText(
+                        ctx, "Google Play services not available.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else if (cause is GooglePlayServicesRepairableException) {
+                    Toast.makeText(
+                        ctx, "Google Play services update is required.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    ctx.startActivity(cause.getIntent())
+                } else {
+                    Toast.makeText(
+                        ctx, "Unexpected error: " + cause,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } else {
+                Toast.makeText(
+                    ctx, "Unable to load Google Play services.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
         val engine =
-            ExperimentalCronetEngine.Builder(ctx /* Android Context */).build();
+            ExperimentalCronetEngine.Builder(ctx /* Android Context */)
+                .enableQuic(true)
+                .enableHttp2(true)
+//                .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 1024)
+                .build();
         val builder = CronetChannelBuilder.forAddress(url.host, url.port, engine)
+//            .disableRetry()
+//            .enableRetry()
+//            .maxRetryAttempts(Int.MAX_VALUE)
         if (!url.protocol.equals("https")) {
             builder.usePlaintext()
         }
@@ -138,7 +183,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) : Br
                         }
                     }
                     Log.d("UogClient", "grpc write stop: $id")
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     Log.e("UogClient", "all", e)
                 } finally {
                     val l = waitNet.get()
