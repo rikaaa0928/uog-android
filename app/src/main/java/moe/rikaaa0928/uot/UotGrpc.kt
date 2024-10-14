@@ -7,7 +7,9 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -28,6 +30,8 @@ class UotGrpc : Service() {
             sharedPreferences.getString("GrpcEndpoint", "")!!,
             sharedPreferences.getString("Password", "")!!
         )
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(client, filter)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -40,6 +44,7 @@ class UotGrpc : Service() {
         super.onDestroy()
         // TODO: Clean up gRPC stream here
         client!!.stop()
+        unregisterReceiver(client)
     }
 
     override fun onBind(intent: Intent?): IBinder? {

@@ -1,5 +1,10 @@
 package moe.rikaaa0928.uot
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import com.google.protobuf.ByteString
 import dad.xiaomi.uog.Udp
@@ -15,18 +20,21 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import java.net.SocketTimeoutException
 import java.net.URL
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.random.Random
 
-class UogClient(val lPort: Int, val endpoint: String, val password: String) {
+class UogClient(val lPort: Int, val endpoint: String, val password: String) : BroadcastReceiver() {
     //    private var service: UdpServiceGrpcKt.UdpServiceCoroutineStub? = null
     var req: Channel<Udp.UdpReq>? = null
-    var udpSocket: DatagramSocket? = null
+    var udpSocket: AtomicReference<DatagramSocket?> = AtomicReference(null);
     private val stop = AtomicBoolean(true)
+    private val noNet = AtomicBoolean(false)
     private var lastAddr = ""
     private var lastPort = 0
     private val bufferSize = 65535;
-    val random = Random(1)
+    private val random = Random(1)
 
     @OptIn(DelicateCoroutinesApi::class)
     fun start() {
@@ -49,14 +57,19 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                         Log.d("UogClient", "reconnect req")
                         req!!.close()
                     }
-                    if (udpSocket != null) {
+                    if (udpSocket.get() != null) {
                         Log.d("UogClient", "re-listen udp")
-                        udpSocket!!.close()
+                        udpSocket.get()!!.close()
                     }
                     req = Channel<Udp.UdpReq>()
                     val res = service.startStream(req!!.consumeAsFlow());
-                    udpSocket = DatagramSocket(lPort)
-                    udpSocket!!.soTimeout = 1000 * 60 * 3
+                    udpSocket.set(DatagramSocket(lPort))
+                    udpSocket.get()!!.soTimeout = 1000 * 3
+
+//                    val job = GlobalScope.launch {
+
+//                    }
+
                     GlobalScope.launch {
                         try {
                             res.collect { t ->
@@ -67,20 +80,23 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                                 val packet = DatagramPacket(readBytes, readBytes.size)
                                 packet.address = InetAddress.getByName(lastAddr)
                                 packet.port = lastPort
-                                udpSocket!!.send(packet)
+                                udpSocket.get()!!.send(packet)
                             }
                         } catch (ignore: Exception) {
 
                         } finally {
                             Log.d("UogClient", "grpc read stop: $id")
-                            udpSocket!!.close()
+                            udpSocket.get()!!.close()
+//                            job.cancel()
                         }
                     }
+//                    job.join()
+
                     val buffer = ByteArray(bufferSize)
                     val packet = DatagramPacket(buffer, bufferSize)
                     while (!stop.get()) {
                         try {
-                            udpSocket!!.receive(packet)
+                            udpSocket.get()!!.receive(packet)
                             if (lastAddr.isEmpty()) {
                                 lastAddr = packet.address.hostName;
                                 lastPort = packet.port
@@ -98,14 +114,35 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                             if (e !is SocketTimeoutException) {
                                 Log.e("UpgClient", "grpc write", e)
                                 break
+                            } else {
+                                if (noNet.get()) {
+                                    Log.d("UogClient", "udp receive break no net: $id")
+                                    break
+                                }
                             }
+                        }
+                    }
+
+                    Log.d("UogClient", "grpc write stopping: $id")
+                    channel.shutdownNow()
+                    while (true) {
+                        val r = channel.awaitTermination(10, TimeUnit.MILLISECONDS)
+                        if (r) {
+                            break
                         }
                     }
                     Log.d("UogClient", "grpc write stop: $id")
                 } catch (e: Exception) {
                     Log.e("UogClient", "all", e)
+                } finally {
+                    if (noNet.get()) {
+                        TimeUnit.SECONDS.sleep(3)
+                    } else {
+                        TimeUnit.SECONDS.sleep(1)
+                    }
                 }
             }
+            Log.d("UotClient", "exit main loop")
         }
     }
 
@@ -120,9 +157,33 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
             Log.e("UogClient", "req close", e)
         }
         try {
-            udpSocket!!.close()
+            udpSocket.get()!!.close()
         } catch (e: Exception) {
             Log.e("UogClient", "udpSocket close", e)
+        }
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (ConnectivityManager.CONNECTIVITY_ACTION == intent.action) {
+            val connectivityManager =
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            var isWifiConnected = false
+            var isMobileDataConnected = false
+
+
+            val network = connectivityManager.activeNetwork
+            val capabilities = connectivityManager.getNetworkCapabilities(network)
+
+            if (capabilities != null) {
+                isWifiConnected = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                isMobileDataConnected =
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+            }
+            if (!isWifiConnected && !isMobileDataConnected) {
+                noNet.set(true)
+            } else {
+                noNet.set(false)
+            }
         }
     }
 }
