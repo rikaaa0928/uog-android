@@ -56,7 +56,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                     req = Channel<Udp.UdpReq>()
                     val res = service.startStream(req!!.consumeAsFlow());
                     udpSocket = DatagramSocket(lPort)
-                    udpSocket!!.soTimeout = 1000 * 3
+                    udpSocket!!.soTimeout = 1000 * 60 * 3
                     GlobalScope.launch {
                         try {
                             res.collect { t ->
