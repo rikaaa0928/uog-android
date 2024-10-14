@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-//    implementation("io.grpc:grpc-core:1.68.0")
+    implementation(libs.grpc.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

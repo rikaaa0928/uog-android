@@ -4,8 +4,7 @@ import android.util.Log
 import com.google.protobuf.ByteString
 import dad.xiaomi.uog.Udp
 import dad.xiaomi.uog.UdpServiceGrpcKt
-//import io.grpc.internal.DnsNameResolverProvider
-import io.grpc.okhttp.OkHttpChannelBuilder
+import io.grpc.android.AndroidChannelBuilder
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
@@ -40,7 +39,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                 try {
                     val id = random.nextInt(1000);
                     val url = URL(endpoint)
-                    val builder = OkHttpChannelBuilder.forAddress(url.host, url.port)
+                    val builder = AndroidChannelBuilder.forAddress(url.host, url.port)
                     if (!url.protocol.equals("https")) {
                         builder.usePlaintext()
                     }
