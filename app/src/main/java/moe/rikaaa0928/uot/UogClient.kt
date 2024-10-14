@@ -44,7 +44,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                     val url = URL(endpoint)
                     val engine =
                         ExperimentalCronetEngine.Builder(ctx /* Android Context */).build();
-                    val builder = CronetChannelBuilder.forAddress(url.host, url.port,engine)
+                    val builder = CronetChannelBuilder.forAddress(url.host, url.port, engine)
                     if (!url.protocol.equals("https")) {
                         builder.usePlaintext()
                     }
