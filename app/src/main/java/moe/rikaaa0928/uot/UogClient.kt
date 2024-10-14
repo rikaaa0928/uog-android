@@ -1,15 +1,18 @@
 package moe.rikaaa0928.uot
 
+import android.content.Context
 import android.util.Log
 import com.google.protobuf.ByteString
 import dad.xiaomi.uog.Udp
 import dad.xiaomi.uog.UdpServiceGrpcKt
 import io.grpc.android.AndroidChannelBuilder
+import io.grpc.cronet.CronetChannelBuilder
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import org.chromium.net.ExperimentalCronetEngine
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -29,7 +32,7 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
     val random = Random(1)
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun start() {
+    fun start(ctx: Context) {
         if (req != null) {
             return
         }
@@ -39,7 +42,9 @@ class UogClient(val lPort: Int, val endpoint: String, val password: String) {
                 try {
                     val id = random.nextInt(1000);
                     val url = URL(endpoint)
-                    val builder = AndroidChannelBuilder.forAddress(url.host, url.port)
+                    val engine =
+                        ExperimentalCronetEngine.Builder(ctx /* Android Context */).build();
+                    val builder = CronetChannelBuilder.forAddress(url.host, url.port,engine)
                     if (!url.protocol.equals("https")) {
                         builder.usePlaintext()
                     }

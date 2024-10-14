@@ -32,7 +32,7 @@ class UotGrpc : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // TODO: Handle gRPC stream start/stop based on intent extras
-        client!!.start()
+        client!!.start(applicationContext)
         return START_REDELIVER_INTENT
     }
 
@@ -45,14 +45,17 @@ class UotGrpc : Service() {
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "uog", NotificationManager.IMPORTANCE_DEFAULT);
-            val notificationManager:NotificationManager =
+            val channel =
+                NotificationChannel(channelId, "uog", NotificationManager.IMPORTANCE_DEFAULT);
+            val notificationManager: NotificationManager =
                 getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
             notificationManager.createNotificationChannel(channel);
         }
     }
+
     private fun startForegroundService() {
         try {
             createNotificationChannel();
