@@ -1,3 +1,10 @@
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+
 plugins {
     id("com.google.protobuf")
     alias(libs.plugins.android.application)
@@ -40,17 +47,19 @@ android {
 }
 
 dependencies {
-    implementation(libs.grpc.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.grpc.okhttp)
-    implementation(libs.grpc.protobuf.lite)
-    implementation(libs.protobuf.kotlin.lite)
-    implementation(libs.grpc.stub)
-    implementation(libs.grpc.kotlin.stub)
+//    implementation(libs.grpc.okhttp)
+//    implementation(libs.grpc.protobuf.lite)
+//    implementation(libs.protobuf.kotlin.lite)
+//    implementation(libs.grpc.stub)
+//    implementation(libs.grpc.kotlin.stub)
+    implementation("net.java.dev.jna:jna:5.13.0@aar")
+    implementation("rustls:rustls-platform-verifier:latest.release")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -90,5 +99,44 @@ protobuf {
                 }
             }
         }
+    }
+}
+
+
+repositories {
+    rustlsPlatformVerifier()
+    google()
+    mavenCentral()
+}
+
+fun RepositoryHandler.rustlsPlatformVerifier(): MavenArtifactRepository {
+    @Suppress("UnstableApiUsage")
+    val manifestPath = let {
+        val dependencyJson = providers.exec {
+            workingDir = File(project.rootDir, "../")
+            commandLine(
+                "cargo",
+                "metadata",
+                "--format-version",
+                "1",
+                "--filter-platform",
+                "aarch64-linux-android",
+                "--manifest-path",
+                "/Users/rikaaa0928/src/rust/udp-over-grpc/Cargo.toml"
+            )
+        }.standardOutput.asText
+        val path = Json.decodeFromString<JsonObject>(dependencyJson.get())
+            .getValue("packages")
+            .jsonArray
+            .first { element ->
+                element.jsonObject.getValue("name").jsonPrimitive.content == "rustls-platform-verifier-android"
+            }.jsonObject.getValue("manifest_path").jsonPrimitive.content
+        File(path)
+    }
+    println(manifestPath)
+    println( uri(File(manifestPath.parentFile, "maven").path))
+    return maven {
+        url = uri(File(manifestPath.parentFile, "maven").path)
+        metadataSources.artifact()
     }
 }

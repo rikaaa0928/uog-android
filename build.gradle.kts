@@ -7,5 +7,6 @@ plugins {
 buildscript {
     dependencies {
         classpath(libs.protobuf.gradle.plugin)
+        classpath("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     }
 }
