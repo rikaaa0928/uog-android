@@ -65,44 +65,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protoc.asProvider().get().toString()
-    }
-    plugins {
-        create("java") {
-            artifact = libs.protoc.gen.grpc.java.get().toString()
-        }
-        create("grpc") {
-            artifact = libs.protoc.gen.grpc.java.get().toString()
-        }
-        create("grpckt") {
-            artifact = libs.protoc.gen.grpc.kotlin.get().toString() + ":jdk8@jar"
-        }
-    }
-    generateProtoTasks {
-        all().forEach {
-            it.plugins {
-                create("java") {
-                    option("lite")
-                }
-                create("grpc") {
-                    option("lite")
-                }
-                create("grpckt") {
-                    option("lite")
-                }
-            }
-            it.builtins {
-                create("kotlin") {
-                    option("lite")
-                }
-            }
-        }
-    }
-}
-
-
 repositories {
     rustlsPlatformVerifier()
     google()
