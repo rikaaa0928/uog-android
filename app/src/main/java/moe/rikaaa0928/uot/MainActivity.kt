@@ -8,6 +8,11 @@ import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        init {
+            System.loadLibrary("uniffi_uog")
+        }
+    }
 
     private lateinit var editTextListenPort: EditText
     private lateinit var editTextPassword: EditText
@@ -39,11 +44,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         buttonSave.setOnClickListener {
-            if (switchStart.isChecked){
+            if (switchStart.isChecked) {
                 //restart
             }
             savePreferences()
         }
+        val initer = Init()
+        initer.callInit(baseContext)
     }
 
     private fun startGrpcService() {
