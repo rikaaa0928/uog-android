@@ -38,7 +38,7 @@ jobs:
       - name: setup and build
         shell: bash
         run: |
-          cd lib-src/uot
+          cd lib-src/uog
           cargo install cargo-ndk;
           cargo install cross --git https://github.com/cross-rs/cross;
           cross build  --target aarch64-linux-android --release --lib;
