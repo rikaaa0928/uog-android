@@ -49,7 +49,7 @@ open class RustBuffer : Structure() {
     class ByValue: RustBuffer(), Structure.ByValue
     class ByReference: RustBuffer(), Structure.ByReference
 
-   internal fun setValue(other: RustBuffer) {
+    internal fun setValue(other: RustBuffer) {
         capacity = other.capacity
         len = other.len
         data = other.data
@@ -61,8 +61,8 @@ open class RustBuffer : Structure() {
             UniffiLib.INSTANCE.ffi_uog_rustbuffer_alloc(size.toLong(), status)
         }.also {
             if(it.data == null) {
-               throw RuntimeException("RustBuffer.alloc() returned null data pointer (size=${size})")
-           }
+                throw RuntimeException("RustBuffer.alloc() returned null data pointer (size=${size})")
+            }
         }
 
         internal fun create(capacity: ULong, len: ULong, data: Pointer?): RustBuffer.ByValue {
@@ -191,11 +191,11 @@ public interface FfiConverter<KotlinType, FfiType> {
     fun liftFromRustBuffer(rbuf: RustBuffer.ByValue): KotlinType {
         val byteBuf = rbuf.asByteBuffer()!!
         try {
-           val item = read(byteBuf)
-           if (byteBuf.hasRemaining()) {
-               throw RuntimeException("junk remaining in buffer after lifting, something is very wrong!!")
-           }
-           return item
+            val item = read(byteBuf)
+            if (byteBuf.hasRemaining()) {
+                throw RuntimeException("junk remaining in buffer after lifting, something is very wrong!!")
+            }
+            return item
         } finally {
             RustBuffer.free(rbuf)
         }
@@ -403,7 +403,7 @@ internal open class UniffiForeignFuture(
         `free`: UniffiForeignFutureFree? = null,
     ): UniffiForeignFuture(`handle`,`free`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFuture) {
+    internal fun uniffiSetValue(other: UniffiForeignFuture) {
         `handle` = other.`handle`
         `free` = other.`free`
     }
@@ -419,7 +419,7 @@ internal open class UniffiForeignFutureStructU8(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructU8(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructU8) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructU8) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -438,7 +438,7 @@ internal open class UniffiForeignFutureStructI8(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructI8(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructI8) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructI8) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -457,7 +457,7 @@ internal open class UniffiForeignFutureStructU16(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructU16(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructU16) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructU16) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -476,7 +476,7 @@ internal open class UniffiForeignFutureStructI16(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructI16(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructI16) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructI16) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -495,7 +495,7 @@ internal open class UniffiForeignFutureStructU32(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructU32(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructU32) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructU32) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -514,7 +514,7 @@ internal open class UniffiForeignFutureStructI32(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructI32(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructI32) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructI32) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -533,7 +533,7 @@ internal open class UniffiForeignFutureStructU64(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructU64(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructU64) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructU64) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -552,7 +552,7 @@ internal open class UniffiForeignFutureStructI64(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructI64(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructI64) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructI64) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -571,7 +571,7 @@ internal open class UniffiForeignFutureStructF32(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructF32(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructF32) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructF32) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -590,7 +590,7 @@ internal open class UniffiForeignFutureStructF64(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructF64(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructF64) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructF64) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -609,7 +609,7 @@ internal open class UniffiForeignFutureStructPointer(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructPointer(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructPointer) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructPointer) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -628,7 +628,7 @@ internal open class UniffiForeignFutureStructRustBuffer(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructRustBuffer(`returnValue`,`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructRustBuffer) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructRustBuffer) {
         `returnValue` = other.`returnValue`
         `callStatus` = other.`callStatus`
     }
@@ -645,7 +645,7 @@ internal open class UniffiForeignFutureStructVoid(
         `callStatus`: UniffiRustCallStatus.ByValue = UniffiRustCallStatus.ByValue(),
     ): UniffiForeignFutureStructVoid(`callStatus`,), Structure.ByValue
 
-   internal fun uniffiSetValue(other: UniffiForeignFutureStructVoid) {
+    internal fun uniffiSetValue(other: UniffiForeignFutureStructVoid) {
         `callStatus` = other.`callStatus`
     }
 
@@ -720,23 +720,23 @@ internal interface UniffiLib : Library {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
             loadIndirect<UniffiLib>(componentName = "uog")
-            .also { lib: UniffiLib ->
-                uniffiCheckContractApiVersion(lib)
-                uniffiCheckApiChecksums(lib)
+                .also { lib: UniffiLib ->
+                    uniffiCheckContractApiVersion(lib)
+                    uniffiCheckApiChecksums(lib)
                 }
         }
-        
+
     }
 
-    fun uniffi_uog_fn_func_start_client(`lAddr`: RustBuffer.ByValue,`dAddr`: RustBuffer.ByValue,`auth`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_uog_fn_func_start_client(`lAddr`: RustBuffer.ByValue,`dAddr`: RustBuffer.ByValue,`auth`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus,
     ): RustBuffer.ByValue
-    fun ffi_uog_rustbuffer_alloc(`size`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rustbuffer_alloc(`size`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): RustBuffer.ByValue
-    fun ffi_uog_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,uniffi_out_err: UniffiRustCallStatus,
     ): RustBuffer.ByValue
-    fun ffi_uog_rustbuffer_free(`buf`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rustbuffer_free(`buf`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus,
     ): Unit
-    fun ffi_uog_rustbuffer_reserve(`buf`: RustBuffer.ByValue,`additional`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rustbuffer_reserve(`buf`: RustBuffer.ByValue,`additional`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): RustBuffer.ByValue
     fun ffi_uog_rust_future_poll_u8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -744,7 +744,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_u8(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_u8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_u8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Byte
     fun ffi_uog_rust_future_poll_i8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -752,7 +752,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_i8(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_i8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_i8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Byte
     fun ffi_uog_rust_future_poll_u16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -760,7 +760,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_u16(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_u16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_u16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Short
     fun ffi_uog_rust_future_poll_i16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -768,7 +768,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_i16(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_i16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_i16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Short
     fun ffi_uog_rust_future_poll_u32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -776,7 +776,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_u32(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_u32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_u32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Int
     fun ffi_uog_rust_future_poll_i32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -784,7 +784,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_i32(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_i32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_i32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Int
     fun ffi_uog_rust_future_poll_u64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -792,7 +792,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_u64(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_u64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_u64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Long
     fun ffi_uog_rust_future_poll_i64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -800,7 +800,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_i64(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_i64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_i64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Long
     fun ffi_uog_rust_future_poll_f32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -808,7 +808,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_f32(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_f32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_f32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Float
     fun ffi_uog_rust_future_poll_f64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -816,7 +816,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_f64(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_f64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_f64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Double
     fun ffi_uog_rust_future_poll_pointer(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -824,7 +824,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_pointer(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_pointer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_pointer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Pointer
     fun ffi_uog_rust_future_poll_rust_buffer(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -832,7 +832,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_rust_buffer(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_rust_buffer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_rust_buffer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): RustBuffer.ByValue
     fun ffi_uog_rust_future_poll_void(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
@@ -840,13 +840,13 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_uog_rust_future_free_void(`handle`: Long,
     ): Unit
-    fun ffi_uog_rust_future_complete_void(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_uog_rust_future_complete_void(`handle`: Long,uniffi_out_err: UniffiRustCallStatus,
     ): Unit
     fun uniffi_uog_checksum_func_start_client(
     ): Short
     fun ffi_uog_uniffi_contract_version(
     ): Int
-    
+
 }
 
 private fun uniffiCheckContractApiVersion(lib: UniffiLib) {
@@ -904,7 +904,7 @@ inline fun <T : Disposable?, R> T.use(block: (T) -> R) =
         }
     }
 
-/** 
+/**
  * Used to instantiate an interface without an actual pointer, for fakes in tests, mostly.
  *
  * @suppress
@@ -967,13 +967,13 @@ public object FfiConverterString: FfiConverter<String, RustBuffer.ByValue> {
         buf.put(byteBuf)
     }
 } fun `startClient`(`lAddr`: kotlin.String, `dAddr`: kotlin.String, `auth`: kotlin.String): kotlin.String {
-            return FfiConverterString.lift(
-    uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_uog_fn_func_start_client(
-        FfiConverterString.lower(`lAddr`),FfiConverterString.lower(`dAddr`),FfiConverterString.lower(`auth`),_status)
-}
+    return FfiConverterString.lift(
+        uniffiRustCall() { _status ->
+            UniffiLib.INSTANCE.uniffi_uog_fn_func_start_client(
+                FfiConverterString.lower(`lAddr`),FfiConverterString.lower(`dAddr`),FfiConverterString.lower(`auth`),_status)
+        }
     )
-    }
+}
     
 
 
