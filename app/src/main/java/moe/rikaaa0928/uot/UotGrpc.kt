@@ -10,6 +10,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -20,18 +22,26 @@ import androidx.core.app.ServiceCompat
 class UotGrpc : Service() {
     var client: UogClient? = null
     val channelId = "UogChannel"
+    var connectivityManager: ConnectivityManager? = null
     override fun onCreate() {
         super.onCreate()
+        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         startForegroundService()
         // TODO: Initialize gRPC stream here
         val sharedPreferences = getSharedPreferences("AppConfig", MODE_PRIVATE)
         client = UogClient(
             sharedPreferences.getString("ListenPort", "0")!!.toInt(),
             sharedPreferences.getString("GrpcEndpoint", "")!!,
-            sharedPreferences.getString("Password", "")!!
+            sharedPreferences.getString("Password", "")!!,
+            connectivityManager!!
         )
-        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        registerReceiver(client, filter)
+//        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+//        registerReceiver(client, filter)
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+
+        connectivityManager!!.registerNetworkCallback(networkRequest, client!!)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -44,20 +54,24 @@ class UotGrpc : Service() {
         super.onDestroy()
         // TODO: Clean up gRPC stream here
         client!!.stop()
-        unregisterReceiver(client)
+        connectivityManager!!.unregisterNetworkCallback(client!!)
+//        unregisterReceiver(client)
     }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "uog", NotificationManager.IMPORTANCE_DEFAULT);
-            val notificationManager:NotificationManager =
+            val channel =
+                NotificationChannel(channelId, "uog", NotificationManager.IMPORTANCE_DEFAULT);
+            val notificationManager: NotificationManager =
                 getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
             notificationManager.createNotificationChannel(channel);
         }
     }
+
     private fun startForegroundService() {
         try {
             createNotificationChannel();
