@@ -56,16 +56,9 @@ jobs:
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
-      - uses: robinraju/release-downloader@v1
-        with:
-          repository: "rikaaa0928/uog"
-          fileName: 'jniLibs-arm64-v8a.tar.gz'
-          latest: true
-          extract: true
       - name: ln so
         shell: bash
         run: |
-          ln -s `pwd`/jniLibs `pwd`/app/src/main/jniLibs
           ls -ahl app/src/main/jniLibs/arm64-v8a
 
       # Create APK Release
