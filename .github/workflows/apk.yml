@@ -23,13 +23,28 @@ jobs:
         shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      - uses: actions/setup-go@v5
+      - name: Install Rust
+        # Or @nightly if you want
+        uses: dtolnay/rust-toolchain@stable
+        # Arguments to pass in
         with:
-            go-version: '>=1.23.0'
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2
+          # Make Rust compile to our target (defined in the matrix)
+          targets: aarch64-linux-android
+      - uses: nttld/setup-ndk@v1
+        name: set up ndk
         with:
-            cmake-version: '3.16.x'
+          ndk-version: r27b
+
+      - name: setup and build
+        shell: bash
+        run: |
+          cd lib-src/uot
+          cargo install cargo-ndk;
+          cargo install cross --git https://github.com/cross-rs/cross;
+          cross build  --target aarch64-linux-android --release --lib;
+          cd ../..
+          mkdir -p `pwd`/app/src/main/jniLibs/arm64-v8a
+          ln -s `pwd`/lib-src/uot/target/aarch64-linux-android/release/libuog.so `pwd`/app/src/main/jniLibs/arm64-v8a/libuniffi_uog.so
 
       - name: Set Up JDK
         uses: actions/setup-java@v3

@@ -1,0 +1,3 @@
+[submodule "lib-src/uog"]
+	path = lib-src/uog
+	url = https://github.com/rikaaa0928/uog.git

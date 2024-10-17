@@ -113,7 +113,7 @@ fun RepositoryHandler.rustlsPlatformVerifier(): MavenArtifactRepository {
     @Suppress("UnstableApiUsage")
     val manifestPath = let {
         val dependencyJson = providers.exec {
-            workingDir = File(project.rootDir, "../")
+            workingDir = File(project.rootDir, "")
             commandLine(
                 "cargo",
                 "metadata",
@@ -122,7 +122,7 @@ fun RepositoryHandler.rustlsPlatformVerifier(): MavenArtifactRepository {
                 "--filter-platform",
                 "aarch64-linux-android",
                 "--manifest-path",
-                "/Users/rikaaa0928/src/rust/udp-over-grpc/Cargo.toml"
+                "lib-src/uog/Cargo.toml"
             )
         }.standardOutput.asText
         val path = Json.decodeFromString<JsonObject>(dependencyJson.get())
