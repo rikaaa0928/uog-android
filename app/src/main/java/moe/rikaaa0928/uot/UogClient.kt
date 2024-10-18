@@ -5,9 +5,13 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.util.Log
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import uniffi.uog.startClient
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
@@ -23,10 +27,12 @@ class UogClient(
 
     private val stop = AtomicBoolean(true)
     private val waitNet: AtomicReference<CountDownLatch> = AtomicReference(CountDownLatch(1))
-
+    private var future: AtomicReference<Future<*>?> = AtomicReference(null)
+    private val executor: AtomicReference<ExecutorService?> = AtomicReference(null)
     fun start() {
         stop.set(false)
-        GlobalScope.launch {
+        executor.set(Executors.newSingleThreadExecutor())
+        future.set(executor.get()!!.submit {
             while (!stop.get()) {
                 try {
                     val res = startClient("127.0.0.1:$lPort", endpoint, password)
@@ -43,11 +49,17 @@ class UogClient(
                 }
             }
             Log.d("UotClient", "exit main loop")
-        }
+        })
     }
 
     fun stop() {
         stop.set(true)
+    }
+
+    fun destroy() {
+        stop()
+        future.getAndSet(null)?.cancel(true)
+        executor.getAndSet(null)?.shutdownNow()
     }
 
 //    override fun onReceive(context: Context, intent: Intent) {
