@@ -55,7 +55,7 @@ class UotGrpc : Service() {
         // TODO: Clean up gRPC stream here
         client!!.stop()
         connectivityManager!!.unregisterNetworkCallback(client!!)
-        client!!.destroy()
+//        client!!.destroy()
 //        unregisterReceiver(client)
     }
 

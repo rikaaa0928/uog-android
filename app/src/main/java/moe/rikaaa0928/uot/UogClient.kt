@@ -3,11 +3,13 @@ package moe.rikaaa0928.uot
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.provider.Settings.Global
 import android.util.Log
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import uniffi.uog.startClient
+import uniffi.uog.UogRust
+//import uniffi.uog.startClient
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -27,16 +29,16 @@ class UogClient(
 
     private val stop = AtomicBoolean(true)
     private val waitNet: AtomicReference<CountDownLatch> = AtomicReference(CountDownLatch(1))
-    private var future: AtomicReference<Future<*>?> = AtomicReference(null)
-    private val executor: AtomicReference<ExecutorService?> = AtomicReference(null)
+    private val c: AtomicReference<UogRust?> = AtomicReference(null)
     fun start() {
         stop.set(false)
-        executor.set(Executors.newSingleThreadExecutor())
-        future.set(executor.get()!!.submit {
+        GlobalScope.launch {
             while (!stop.get()) {
                 try {
-                    val res = startClient("127.0.0.1:$lPort", endpoint, password)
+                    c.compareAndSet(null, UogRust())
+                    val res = c.get()?.client("127.0.0.1:$lPort", endpoint, password)
                     Log.e("UogClient", "startClient exit $res")
+                    c.getAndSet(null)?.stop()
                 } catch (e: Throwable) {
                     Log.e("UogClient", "all", e)
                 } finally {
@@ -49,17 +51,12 @@ class UogClient(
                 }
             }
             Log.d("UotClient", "exit main loop")
-        })
+        }
     }
 
     fun stop() {
         stop.set(true)
-    }
-
-    fun destroy() {
-        stop()
-        future.getAndSet(null)?.cancel(true)
-        executor.getAndSet(null)?.shutdownNow()
+        c.getAndSet(null)?.stop()
     }
 
 //    override fun onReceive(context: Context, intent: Intent) {
