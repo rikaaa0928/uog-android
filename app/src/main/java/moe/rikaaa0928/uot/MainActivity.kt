@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
     companion object {
         init {
-            System.loadLibrary("uniffi_uog")
+            System.loadLibrary("uog")
         }
     }
 

@@ -44,7 +44,7 @@ jobs:
           cross build  --target aarch64-linux-android --release --lib;
           cd ../..
           mkdir -p `pwd`/app/src/main/jniLibs/arm64-v8a
-          ln -s `pwd`/lib-src/uog/target/aarch64-linux-android/release/libuog.so `pwd`/app/src/main/jniLibs/arm64-v8a/libuniffi_uog.so
+          cp `pwd`/lib-src/uog/target/aarch64-linux-android/release/libuog.so `pwd`/app/src/main/jniLibs/arm64-v8a/libuog.so
 
       - name: Set Up JDK
         uses: actions/setup-java@v3
