@@ -1,13 +1,11 @@
 package moe.rikaaa0928.uot
 
 import android.app.ForegroundServiceStartNotAllowedException
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -15,12 +13,11 @@ import android.net.NetworkRequest
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.google.gson.Gson
 
-class UotGrpc : Service() {
+class UogGrpc : Service() {
     var client: UogClient? = null
     val channelId = "UogChannel"
     var connectivityManager: ConnectivityManager? = null

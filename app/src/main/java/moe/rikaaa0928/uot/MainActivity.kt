@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import moe.rikaaa0928.uot.ConfigAdapter
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -153,14 +152,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun startGrpcService() {
         if (activeConfigPosition != -1) {
-            val intent = Intent(this, UotGrpc::class.java)
+            val intent = Intent(this, UogGrpc::class.java)
             intent.putExtra("config", Gson().toJson(configList[activeConfigPosition]))
             startForegroundService(intent)
         }
     }
 
     private fun stopGrpcService() {
-        val intent = Intent(this, UotGrpc::class.java)
+        val intent = Intent(this, UogGrpc::class.java)
         stopService(intent)
     }
 }

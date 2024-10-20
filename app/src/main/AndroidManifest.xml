@@ -36,7 +36,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".UotGrpc"
+            android:name=".UogGrpc"
             android:exported="false"
             android:foregroundServiceType="specialUse|microphone">
         <property
