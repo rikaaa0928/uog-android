@@ -60,6 +60,9 @@ dependencies {
     implementation("net.java.dev.jna:jna:5.13.0@aar")
     implementation("rustls:rustls-platform-verifier:latest.release")
 
+    implementation("com.google.code.gson:gson:2.11.0")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -18,25 +18,40 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import com.google.gson.Gson
 
 class UotGrpc : Service() {
     var client: UogClient? = null
     val channelId = "UogChannel"
     var connectivityManager: ConnectivityManager? = null
+
     override fun onCreate() {
         super.onCreate()
         connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         startForegroundService()
-        // TODO: Initialize gRPC stream here
-        val sharedPreferences = getSharedPreferences("AppConfig", MODE_PRIVATE)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val configJson = intent?.getStringExtra("config")
+        if (configJson != null) {
+            val config = Gson().fromJson(configJson, Config::class.java)
+            initializeClient(config)
+            client?.start()
+        } else {
+            Log.e("UotGrpc", "No configuration received")
+            stopSelf()
+        }
+        return START_REDELIVER_INTENT
+    }
+
+    private fun initializeClient(config: Config) {
         client = UogClient(
-            sharedPreferences.getString("ListenPort", "0")!!.toInt(),
-            sharedPreferences.getString("GrpcEndpoint", "")!!,
-            sharedPreferences.getString("Password", "")!!,
+            config.listenPort.toInt(),
+            config.grpcEndpoint,
+            config.password,
             connectivityManager!!
         )
-//        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-//        registerReceiver(client, filter)
+
         val networkRequest = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
@@ -44,19 +59,10 @@ class UotGrpc : Service() {
         connectivityManager!!.registerNetworkCallback(networkRequest, client!!)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // TODO: Handle gRPC stream start/stop based on intent extras
-        client!!.start()
-        return START_REDELIVER_INTENT
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        // TODO: Clean up gRPC stream here
-        client!!.stop()
-        connectivityManager!!.unregisterNetworkCallback(client!!)
-//        client!!.destroy()
-//        unregisterReceiver(client)
+        client?.stop()
+        connectivityManager?.unregisterNetworkCallback(client!!)
     }
 
     override fun onBind(intent: Intent?): IBinder? {
