@@ -45,7 +45,7 @@ class UogClient(
                     val l = waitNet.get()
                     if (l != null) {
                         l.await()
-                    } else {
+                    } else if (!stop.get()) {
                         TimeUnit.SECONDS.sleep(1)
                     }
                 }
