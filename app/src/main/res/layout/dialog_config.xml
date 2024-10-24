@@ -25,5 +25,11 @@
         android:layout_height="wrap_content"
         android:hint="gRPC 端点"
         android:inputType="textUri" />
+    <EditText
+        android:id="@+id/editTextWGName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="wg tunnel name"
+        android:inputType="text" />
 
 </LinearLayout>

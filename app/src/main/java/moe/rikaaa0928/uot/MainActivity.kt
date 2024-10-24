@@ -1,6 +1,7 @@
 package moe.rikaaa0928.uot
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -41,7 +43,11 @@ class MainActivity : AppCompatActivity() {
         addConfigButton.setOnClickListener {
             addNewConfiguration()
         }
-
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf("com.wireguard.android.permission.CONTROL_TUNNELS"),
+            1
+        )
         switchStart.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 startGrpcService()
@@ -57,7 +63,13 @@ class MainActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         configAdapter = ConfigAdapter(
             configList,
-            onItemClick = { position -> setActiveConfig(position) },
+            onItemClick = { position ->
+                if (switchStart.isChecked) {
+                    showSwitchEnabledMessage()
+                } else {
+                    setActiveConfig(position)
+                }
+            },
             onEditClick = { position -> editConfiguration(position) },
             onDeleteClick = { position -> deleteConfiguration(position) }
         )
@@ -69,7 +81,8 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("AppConfigs", MODE_PRIVATE)
         val configsJson = sharedPreferences.getString("configs", null)
         if (configsJson != null) {
-            configList = Gson().fromJson(configsJson, object : TypeToken<MutableList<Config>>() {}.type)
+            configList =
+                Gson().fromJson(configsJson, object : TypeToken<MutableList<Config>>() {}.type)
             configAdapter.updateConfigList(configList)  // 更新适配器的数据
         }
         activeConfigPosition = sharedPreferences.getInt("activeConfig", -1)
@@ -110,11 +123,18 @@ class MainActivity : AppCompatActivity() {
         val editTextListenPort = dialogView.findViewById<EditText>(R.id.editTextListenPort)
         val editTextPassword = dialogView.findViewById<EditText>(R.id.editTextPassword)
         val editTextGrpcEndpoint = dialogView.findViewById<EditText>(R.id.editTextGrpcEndpoint)
+        val editTextWGName = dialogView.findViewById<EditText>(R.id.editTextWGName)
 
         if (config != null) {
             editTextListenPort.setText(config.listenPort)
             editTextPassword.setText(config.password)
             editTextGrpcEndpoint.setText(config.grpcEndpoint)
+            if (config.wgName == null) {
+                editTextWGName.setText("")
+            } else {
+                editTextWGName.setText(config.wgName)
+            }
+
         }
 
         AlertDialog.Builder(this)
@@ -124,7 +144,8 @@ class MainActivity : AppCompatActivity() {
                 val newConfig = Config(
                     editTextListenPort.text.toString(),
                     editTextPassword.text.toString(),
-                    editTextGrpcEndpoint.text.toString()
+                    editTextGrpcEndpoint.text.toString(),
+                    editTextWGName.text.toString()
                 )
                 onSave(newConfig)
             }
@@ -152,20 +173,53 @@ class MainActivity : AppCompatActivity() {
 
     private fun startGrpcService() {
         if (activeConfigPosition != -1) {
+            val conf = configList[activeConfigPosition]
             val intent = Intent(this, UogGrpc::class.java)
-            intent.putExtra("config", Gson().toJson(configList[activeConfigPosition]))
+            intent.putExtra("config", Gson().toJson(conf))
             startForegroundService(intent)
+            conf.wgName?.let { startWireGuardTunnel(baseContext, it) }
         }
     }
 
     private fun stopGrpcService() {
+        val conf = configList[activeConfigPosition]
+        conf.wgName?.let { stopWireGuardTunnel(baseContext, it) }
         val intent = Intent(this, UogGrpc::class.java)
         stopService(intent)
+    }
+
+    private fun startWireGuardTunnel(context: Context, tunnelName: String) {
+        val intent = Intent().apply {
+            action = "com.wireguard.android.action.SET_TUNNEL_UP"
+            putExtra("tunnel", tunnelName)
+            // 设置接收应用的包名
+            setPackage("com.wireguard.android")
+        }
+        context.sendBroadcast(intent)
+    }
+
+    // 停止隧道
+    private fun stopWireGuardTunnel(context: Context, tunnelName: String) {
+        val intent = Intent().apply {
+            action = "com.wireguard.android.action.SET_TUNNEL_DOWN"
+            putExtra("tunnel", tunnelName)
+            setPackage("com.wireguard.android")
+        }
+        context.sendBroadcast(intent)
+    }
+
+    private fun showSwitchEnabledMessage() {
+        AlertDialog.Builder(this)
+            .setTitle("提示")
+            .setMessage("请先关闭开关再切换配置。")
+            .setPositiveButton("确定", null)
+            .show()
     }
 }
 
 data class Config(
     var listenPort: String,
     var password: String,
-    var grpcEndpoint: String
+    var grpcEndpoint: String,
+    val wgName: String?
 )

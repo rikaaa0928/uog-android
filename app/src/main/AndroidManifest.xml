@@ -9,11 +9,12 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
-<!--    <uses-permission android:name="android.permission.CAPTURE_AUDIO_HOTWORD" />-->
-<!--    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" />-->
-<!--    <uses-permission android:name="android.permission.CAPTURE_MEDIA_OUTPUT" />-->
-<!--    <uses-permission android:name="android.permission.CAPTURE_TUNER_AUDIO_INPUT" />-->
-<!--    <uses-permission android:name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />-->
+    <uses-permission android:name="com.wireguard.android.permission.CONTROL_TUNNELS" />
+    <!--    <uses-permission android:name="android.permission.CAPTURE_AUDIO_HOTWORD" />-->
+    <!--    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" />-->
+    <!--    <uses-permission android:name="android.permission.CAPTURE_MEDIA_OUTPUT" />-->
+    <!--    <uses-permission android:name="android.permission.CAPTURE_TUNER_AUDIO_INPUT" />-->
+    <!--    <uses-permission android:name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
@@ -39,9 +40,9 @@
             android:name=".UogGrpc"
             android:exported="false"
             android:foregroundServiceType="specialUse|microphone">
-        <property
-            android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-            android:value="udp over grpc service for udp packets" />
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="udp over grpc service for udp packets" />
         </service>
     </application>
 
