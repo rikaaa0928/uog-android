@@ -32,6 +32,11 @@ class UogGrpc : Service() {
         val configJson = intent?.getStringExtra("config")
         if (configJson != null) {
             val config = Gson().fromJson(configJson, Config::class.java)
+            if (client != null) {
+                connectivityManager?.unregisterNetworkCallback(client!!)
+                client?.stop()
+                sendMessage("Client stopped")
+            }
             initializeClient(config)
             client?.start()
         } else {
@@ -46,7 +51,8 @@ class UogGrpc : Service() {
             config.listenPort.toInt(),
             config.grpcEndpoint,
             config.password,
-            connectivityManager!!
+            connectivityManager!!,
+            applicationContext
         )
 
         val networkRequest = NetworkRequest.Builder()
@@ -58,8 +64,11 @@ class UogGrpc : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        client?.stop()
-        connectivityManager?.unregisterNetworkCallback(client!!)
+        if (client != null) {
+            client?.stop()
+//            sendMessage("Service destroyed, client stopped")
+            connectivityManager?.unregisterNetworkCallback(client!!)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -109,5 +118,15 @@ class UogGrpc : Service() {
             }
             // ...
         }
+    }
+
+    private fun sendMessage(message: String) {
+        val intent = Intent(MainActivity.MESSAGE_ACTION).apply {
+            setPackage(packageName)  // 确保广播只发送给本应用
+            putExtra("message", message)
+        }
+        sendBroadcast(intent)
+        // 添加日志以便调试
+        Log.d("UogGrpc", "Sending broadcast message: $message")
     }
 }

@@ -1,5 +1,7 @@
 package moe.rikaaa0928.uot
 
+import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -22,7 +24,8 @@ class UogClient(
     val lPort: Int,
     val endpoint: String,
     val password: String,
-    val connectivityManager: ConnectivityManager
+    val connectivityManager: ConnectivityManager,
+    private val context: Context
 ) :
     ConnectivityManager.NetworkCallback() {
     //    private var service: UdpServiceGrpcKt.UdpServiceCoroutineStub? = null
@@ -38,9 +41,11 @@ class UogClient(
                     c.compareAndSet(null, UogRust())
                     val res = c.get()?.client("127.0.0.1:$lPort", endpoint, password)
                     Log.e("UogClient", "startClient exit $res")
+                    sendMessage("startClient exit $res")
                     c.getAndSet(null)?.stop()
                 } catch (e: Throwable) {
                     Log.e("UogClient", "all", e)
+                    sendMessage("Client error: ${e.message}")
                 } finally {
                     val l = waitNet.get()
                     if (l != null) {
@@ -51,7 +56,18 @@ class UogClient(
                 }
             }
             Log.d("UotClient", "exit main loop")
+            sendMessage("UotClient exit main loop")
         }
+    }
+
+    private fun sendMessage(message: String) {
+        val intent = Intent(MainActivity.MESSAGE_ACTION).apply {
+            setPackage(context.packageName)  // 确保广播只发送给本应用
+            putExtra("message", message)
+        }
+        context.sendBroadcast(intent)
+        // 添加日志以便调试
+        Log.d("UogClient", "Sending broadcast message: $message")
     }
 
     fun stop() {

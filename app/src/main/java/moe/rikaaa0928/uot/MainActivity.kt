@@ -1,9 +1,14 @@
 package moe.rikaaa0928.uot
 
 import android.app.AlertDialog
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
@@ -20,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         init {
             System.loadLibrary("uog")
         }
+        const val MESSAGE_ACTION = "moe.rikaaa0928.uot.action.SHOW_MESSAGE"
     }
 
     private lateinit var configRecyclerView: RecyclerView
@@ -28,7 +34,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var configAdapter: ConfigAdapter
     private var configList: MutableList<Config> = mutableListOf()
     private var activeConfigPosition: Int = -1
+    private val messageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d("MainActivity", "Received broadcast: ${intent?.action}")
+            intent?.getStringExtra("message")?.let { message ->
+                Log.d("MainActivity", "Message content: $message")
+                showMessage(message)
+            }
+        }
+    }
 
+    // 在 MainActivity 类中添加自定义队列类
+    private class LimitedQueue<T> : ArrayList<T>() {
+        override fun add(element: T): Boolean {
+            if (size >= 3) {
+                removeFirstOrNull()
+            }
+            return super.add(element)
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -58,6 +82,26 @@ class MainActivity : AppCompatActivity() {
 
         val initer = Init()
         initer.callInit(baseContext)
+
+        // 根据 Android 版本使用不同的注册方式
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                messageReceiver,
+                IntentFilter(MESSAGE_ACTION),
+                Context.RECEIVER_NOT_EXPORTED
+            )
+        } else {
+            registerReceiver(
+                messageReceiver,
+                IntentFilter(MESSAGE_ACTION)
+            )
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // 取消注册广播接收器
+        unregisterReceiver(messageReceiver)
     }
 
     private fun setupRecyclerView() {
@@ -88,6 +132,13 @@ class MainActivity : AppCompatActivity() {
         activeConfigPosition = sharedPreferences.getInt("activeConfig", -1)
         configAdapter.setActivePosition(activeConfigPosition)  // 设置活跃配置
         switchStart.isChecked = sharedPreferences.getBoolean("isStarted", false)
+        showMessage(
+            String.format(
+                "switch %s-%s",
+                switchStart.isChecked,
+                sharedPreferences.getBoolean("isStarted", false)
+            )
+        )
         if (switchStart.isChecked) {
             startGrpcService()
         }
@@ -214,6 +265,19 @@ class MainActivity : AppCompatActivity() {
             .setMessage("请先关闭开关再切换配置。")
             .setPositiveButton("确定", null)
             .show()
+    }
+
+    private fun showMessage(message: String) {
+        com.google.android.material.snackbar.Snackbar.make(
+            findViewById(android.R.id.content),
+            message,
+            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+        ).apply {
+            // 设置半透明背景
+            view.setBackgroundColor(Color.parseColor("#CC323232"))
+            // 添加点击监听，点击任意位置消失
+            view.setOnClickListener { dismiss() }
+        }.show()
     }
 }
 
