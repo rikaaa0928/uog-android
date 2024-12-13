@@ -32,9 +32,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            isDebuggable = false
         }
         debug {
             applicationIdSuffix = ".rika"
+            isDebuggable = true
         }
     }
     compileOptions {
@@ -99,7 +101,7 @@ fun RepositoryHandler.rustlsPlatformVerifier(): MavenArtifactRepository {
         File(path)
     }
     println(manifestPath)
-    println( uri(File(manifestPath.parentFile, "maven").path))
+    println(uri(File(manifestPath.parentFile, "maven").path))
     return maven {
         url = uri(File(manifestPath.parentFile, "maven").path)
         metadataSources.artifact()

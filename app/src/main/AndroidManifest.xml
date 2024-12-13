@@ -17,7 +17,7 @@
     <!--    <uses-permission android:name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <permission android:name="moe.rikaaa0928.uot.permission.SHOW_MESSAGE" 
+    <permission android:name="@string/permission_show_message"
         android:protectionLevel="normal"/>
 
     <application

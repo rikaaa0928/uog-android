@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity() {
         init {
             System.loadLibrary("uog")
         }
-        const val MESSAGE_ACTION = "moe.rikaaa0928.uot.permission.SHOW_MESSAGE"
     }
 
     private lateinit var configRecyclerView: RecyclerView
@@ -53,6 +52,7 @@ class MainActivity : AppCompatActivity() {
             return super.add(element)
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -82,18 +82,18 @@ class MainActivity : AppCompatActivity() {
 
         val initer = Init()
         initer.callInit(baseContext)
-
+        val filter = baseContext.getString(R.string.permission_show_message)
         // 根据 Android 版本使用不同的注册方式
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(
                 messageReceiver,
-                IntentFilter(MESSAGE_ACTION),
+                IntentFilter(filter),
                 Context.RECEIVER_NOT_EXPORTED
             )
         } else {
             registerReceiver(
                 messageReceiver,
-                IntentFilter(MESSAGE_ACTION)
+                IntentFilter(filter)
             )
         }
     }

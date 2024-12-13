@@ -38,15 +38,15 @@ class UogClient(
         GlobalScope.launch {
             while (!stop.get()) {
                 try {
-                    sendMessage("startClient with $endpoint")
+                    sendMessage("startClient with $endpoint", context)
                     c.compareAndSet(null, UogRust())
                     val res = c.get()?.client("127.0.0.1:$lPort", endpoint, password)
                     Log.e("UogClient", "startClient exit $res")
-                    sendMessage("startClient exit $res")
+                    sendMessage("startClient exit $res", context)
                     c.getAndSet(null)?.stop()
                 } catch (e: Throwable) {
                     Log.e("UogClient", "all", e)
-                    sendMessage("Client error: ${e.message}")
+                    sendMessage("Client error: ${e.message}", context)
                 } finally {
                     val l = waitNet.get()
                     if (l != null) {
@@ -57,12 +57,13 @@ class UogClient(
                 }
             }
             Log.d("UotClient", "exit main loop")
-            sendMessage("UotClient exit main loop")
+            sendMessage("UotClient exit main loop", context)
         }
     }
 
-    private fun sendMessage(message: String) {
-        val intent = Intent(MainActivity.MESSAGE_ACTION).apply {
+    private fun sendMessage(message: String, context: Context) {
+        val action = context.getString(R.string.permission_show_message)
+        val intent = Intent(action).apply {
             setPackage(context.packageName)  // 确保广播只发送给本应用
             putExtra("message", message)
         }

@@ -121,7 +121,8 @@ class UogGrpc : Service() {
     }
 
     private fun sendMessage(message: String) {
-        val intent = Intent(MainActivity.MESSAGE_ACTION).apply {
+        val action = baseContext.getString(R.string.permission_show_message)
+        val intent = Intent(action).apply {
             setPackage(packageName)  // 确保广播只发送给本应用
             putExtra("message", message)
         }
