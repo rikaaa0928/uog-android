@@ -38,6 +38,7 @@ class UogClient(
         GlobalScope.launch {
             while (!stop.get()) {
                 try {
+                    sendMessage("startClient with $endpoint")
                     c.compareAndSet(null, UogRust())
                     val res = c.get()?.client("127.0.0.1:$lPort", endpoint, password)
                     Log.e("UogClient", "startClient exit $res")
