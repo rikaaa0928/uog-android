@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         init {
             System.loadLibrary("uog")
         }
-        const val MESSAGE_ACTION = "moe.rikaaa0928.uot.action.SHOW_MESSAGE"
+        const val MESSAGE_ACTION = "moe.rikaaa0928.uot.permission.SHOW_MESSAGE"
     }
 
     private lateinit var configRecyclerView: RecyclerView
