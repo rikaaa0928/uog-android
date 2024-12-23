@@ -43,7 +43,7 @@ class UogGrpc : Service() {
             Log.e("UotGrpc", "No configuration received")
             stopSelf()
         }
-        return START_REDELIVER_INTENT
+        return START_STICKY
     }
 
     private fun initializeClient(config: Config) {
@@ -89,6 +89,7 @@ class UogGrpc : Service() {
         try {
             createNotificationChannel();
             val notification = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.mipmap.ic_launcher_monochrome)
                 .setContentTitle("uog")
                 .setContentText("uog is running")
                 // Create the notification to display while the service is running
