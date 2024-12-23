@@ -76,20 +76,18 @@ class UogGrpc : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel =
-                NotificationChannel(channelId, "uog", NotificationManager.IMPORTANCE_DEFAULT);
-            val notificationManager: NotificationManager =
-                getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
-            notificationManager.createNotificationChannel(channel);
-        }
+        val channel =
+            NotificationChannel(channelId, "uog", NotificationManager.IMPORTANCE_LOW);
+        val notificationManager: NotificationManager =
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
+        notificationManager.createNotificationChannel(channel);
     }
 
     private fun startForegroundService() {
         try {
             createNotificationChannel();
             val notification = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle("uog")
                 .setContentText("uog is running")
                 // Create the notification to display while the service is running
@@ -101,11 +99,8 @@ class UogGrpc : Service() {
                 /* foregroundServiceType = */
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-                } else {
-                    0
-                },
+                } else
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE,
             )
         } catch (e: Exception) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
