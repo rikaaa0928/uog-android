@@ -89,7 +89,7 @@ class UogGrpc : Service() {
         try {
             createNotificationChannel();
             val notification = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher_monochrome)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("uog")
                 .setContentText("uog is running")
                 // Create the notification to display while the service is running
