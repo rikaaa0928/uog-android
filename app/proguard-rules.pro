@@ -21,3 +21,14 @@
 #-renamesourcefileattribute SourceFile
 
 -keep, includedescriptorclasses class org.rustls.platformverifier.** { *; }
+
+-keep class uniffi.** { *; }
+-keep class com.sun.jna.** { *; }
+-keep class java.awt.Component { *; }
+-keep class java.awt.GraphicsEnvironment { *; }
+-keep class java.awt.HeadlessException { *; }
+-keep class java.awt.Window { *; }
+-dontwarn java.awt.Component
+-dontwarn java.awt.GraphicsEnvironment
+-dontwarn java.awt.HeadlessException
+-dontwarn java.awt.Window
